@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="pt-BR" class="antialiased">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lance AI - Análise de Leilões</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-zinc-50 text-zinc-900 font-['Inter',sans-serif] selection:bg-indigo-100 selection:text-indigo-900">
+    <nav class="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-md">
+      <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-2">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+            <iconify-icon icon="solar:home-angle-linear" width="20" stroke-width="1.5"></iconify-icon>
+          </div>
+          <span class="text-lg font-semibold tracking-tighter text-zinc-950">LANCE.AI</span>
+        </div>
+        <div class="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-500">
+          <a href="#descobrir" class="text-zinc-900 hover:text-indigo-600 transition-colors">Descobrir</a>
+          <a href="#analise" class="hover:text-zinc-900 transition-colors">Análise</a>
+          <a href="#custo" class="hover:text-zinc-900 transition-colors">Custo</a>
+        </div>
+        <div class="flex items-center gap-4">
+          <button class="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
+            <iconify-icon icon="solar:user-circle-linear" width="20" stroke-width="1.5"></iconify-icon>
+            <span>Entrar</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-24">
+      <section id="descobrir" class="space-y-12">
+        <div class="mx-auto max-w-3xl text-center space-y-6">
+          <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight text-zinc-950">
+            Encontre imóveis de leilão que realmente <span class="text-indigo-600">valem a pena</span>.
+          </h1>
+          <p class="text-lg text-zinc-500">
+            Nossa IA analisa editais complexos em segundos, revelando custos ocultos, riscos jurídicos e o potencial real de
+            lucro.
+          </p>
+        </div>
+
+        <div class="mx-auto max-w-4xl">
+          <div
+            class="flex flex-col sm:flex-row items-center gap-3 p-2 bg-white rounded-2xl border border-zinc-200 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all"
+          >
+            <div class="flex-1 flex items-center gap-3 px-4 py-2 w-full">
+              <iconify-icon icon="solar:magnifer-linear" class="text-zinc-400" width="24" stroke-width="1.5"></iconify-icon>
+              <input
+                id="cidadeInput"
+                type="text"
+                value="São Paulo"
+                placeholder="Cidade, bairro ou código do edital..."
+                class="w-full bg-transparent border-none focus:ring-0 text-zinc-900 placeholder:text-zinc-400 text-base outline-none"
+              />
+            </div>
+            <div class="h-8 w-px bg-zinc-200 hidden sm:block"></div>
+            <div class="flex-shrink-0 flex items-center gap-2 px-4 py-2 w-full sm:w-auto border-t sm:border-none border-zinc-100">
+              <iconify-icon icon="solar:filter-linear" class="text-zinc-400" width="20" stroke-width="1.5"></iconify-icon>
+              <select
+                id="descontoSelect"
+                class="bg-transparent border-none text-sm font-medium text-zinc-700 focus:ring-0 outline-none cursor-pointer"
+              >
+                <option value="30">Desconto Mín: 30%</option>
+                <option value="40">Desconto Mín: 40%</option>
+                <option value="50">Desconto Mín: 50%</option>
+              </select>
+            </div>
+            <button
+              id="buscarBtn"
+              class="w-full sm:w-auto whitespace-nowrap bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-colors shadow-sm"
+            >
+              Buscar Oportunidades
+            </button>
+          </div>
+          <div id="searchStatus" class="mt-3 text-sm text-zinc-500"></div>
+        </div>
+
+        <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-8"></div>
+      </section>
+
+      <div class="h-px w-full bg-gradient-to-r from-transparent via-zinc-200 to-transparent"></div>
+
+      <section id="analise" class="space-y-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-semibold tracking-tight text-zinc-950">Análise de Edital</h2>
+            <p class="text-sm text-zinc-500 mt-1">Extraia os dados críticos do documento instantaneamente.</p>
+          </div>
+          <button
+            id="modoInicianteBtn"
+            class="hidden sm:flex items-center gap-2 text-sm font-medium text-zinc-600 bg-white border border-zinc-200 px-4 py-2 rounded-xl hover:bg-zinc-50 transition-colors shadow-sm"
+          >
+            <iconify-icon icon="solar:magic-stick-3-linear" class="text-indigo-500" width="18"></iconify-icon>
+            Modo Iniciante
+          </button>
+        </div>
+
+        <div
+          id="selectedPropertyBar"
+          class="hidden bg-white rounded-2xl border border-zinc-200 shadow-sm px-4 py-4 sm:px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
+          <div class="min-w-0">
+            <div class="text-xs font-medium text-zinc-500">Imóvel selecionado</div>
+            <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <div id="selectedTitle" class="text-sm font-semibold text-zinc-900 truncate"></div>
+              <div class="text-xs text-zinc-500">
+                <span id="selectedFonte"></span>
+              </div>
+              <div class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+                <span id="selectedDesconto"></span>
+              </div>
+            </div>
+            <div class="mt-2 text-xs text-zinc-500 flex flex-wrap gap-x-4 gap-y-1">
+              <div><span class="font-medium text-zinc-700">Leilão:</span> <span id="selectedLeilao"></span></div>
+              <div><span class="font-medium text-zinc-700">Mercado:</span> <span id="selectedMercado"></span></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <a
+              id="selectedLink"
+              href="#"
+              target="_blank"
+              rel="noreferrer"
+              class="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+            >
+              Abrir site do leilão
+              <iconify-icon icon="solar:arrow-right-up-linear" width="16"></iconify-icon>
+            </a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white p-1 rounded-2xl border border-zinc-200 shadow-sm flex flex-col h-[400px]">
+              <div class="flex items-center justify-between p-3 border-b border-zinc-100">
+                <div class="flex items-center gap-2 text-sm font-medium text-zinc-700">
+                  <iconify-icon icon="solar:document-text-linear" width="18"></iconify-icon>
+                  Texto do Edital
+                </div>
+                <label class="text-xs text-indigo-600 font-medium hover:text-indigo-700 cursor-pointer">
+                  Fazer Upload PDF
+                  <input id="pdfInput" type="file" accept="application/pdf" class="hidden" />
+                </label>
+              </div>
+              <textarea
+                id="editalTextarea"
+                class="flex-1 w-full resize-none p-4 bg-transparent border-none text-sm text-zinc-600 focus:ring-0 outline-none placeholder:text-zinc-400"
+                placeholder="Cole o texto do edital aqui ou faça upload do documento..."
+              ></textarea>
+              <div class="p-3 bg-zinc-50/50 border-t border-zinc-100 rounded-b-xl flex items-center justify-between">
+                <span id="analyzeHint" class="text-xs text-zinc-400">Selecione um imóvel para analisar</span>
+                <button
+                  id="analisarBtn"
+                  disabled
+                  class="bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-300 disabled:text-zinc-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2 group"
+                >
+                  Analisar com IA
+                  <iconify-icon icon="solar:stars-linear" width="16" class="group-hover:rotate-12 transition-transform"></iconify-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-3 bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
+              <h3 class="text-lg font-semibold tracking-tight text-zinc-900">Resumo do Imóvel</h3>
+              <div
+                id="riskBadge"
+                class="hidden flex items-center gap-2 bg-zinc-100 border border-zinc-200 text-zinc-700 px-3 py-1.5 rounded-full shadow-sm"
+              >
+                <iconify-icon icon="solar:info-circle-linear" width="16" stroke-width="2"></iconify-icon>
+                <span id="riskText" class="text-xs font-semibold uppercase tracking-wide">Risco</span>
+              </div>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6 flex-1">
+              <div class="bg-zinc-50 rounded-2xl p-4 border border-zinc-100">
+                <div class="text-xs font-medium text-zinc-500 mb-2 flex items-center gap-1.5">
+                  <iconify-icon icon="solar:users-group-two-rounded-linear" width="16"></iconify-icon>
+                  Ocupação
+                </div>
+                <div id="ocupacaoStat" class="flex items-center gap-2 text-zinc-700 font-medium">
+                  <iconify-icon icon="solar:minus-circle-linear" width="20"></iconify-icon>
+                  <span>—</span>
+                </div>
+              </div>
+
+              <div class="bg-zinc-50 rounded-2xl p-4 border border-zinc-100">
+                <div class="text-xs font-medium text-zinc-500 mb-2 flex items-center gap-1.5">
+                  <iconify-icon icon="solar:banknotes-linear" width="16"></iconify-icon>
+                  Financiamento
+                </div>
+                <div id="financiamentoStat" class="flex items-center gap-2 text-zinc-700 font-medium">
+                  <iconify-icon icon="solar:minus-circle-linear" width="20"></iconify-icon>
+                  <span>—</span>
+                </div>
+              </div>
+
+              <div class="bg-zinc-50 rounded-2xl p-4 border border-zinc-100">
+                <div class="text-xs font-medium text-zinc-500 mb-2 flex items-center gap-1.5">
+                  <iconify-icon icon="solar:document-medicine-linear" width="16"></iconify-icon>
+                  Dívidas Ativas
+                </div>
+                <div id="dividasStat" class="flex items-center gap-2 text-zinc-700 font-medium">
+                  <iconify-icon icon="solar:minus-circle-linear" width="20"></iconify-icon>
+                  <span>—</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="highlightBox" class="m-6 mt-0 bg-indigo-50/50 rounded-2xl p-5 border border-indigo-100 relative overflow-hidden hidden">
+              <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+              <div class="flex items-start gap-4">
+                <div class="mt-0.5 bg-indigo-100 p-1.5 rounded-lg text-indigo-600 shrink-0">
+                  <iconify-icon icon="solar:lightbulb-bolt-linear" width="20"></iconify-icon>
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-zinc-900 mb-1">Atenção Necessária</h4>
+                  <p id="highlightText" class="text-sm text-zinc-600 leading-relaxed"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="h-px w-full bg-gradient-to-r from-transparent via-zinc-200 to-transparent"></div>
+
+      <section id="custo" class="space-y-8 bg-white rounded-3xl p-6 sm:p-10 border border-zinc-200 shadow-sm relative overflow-hidden">
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
+          <div class="space-y-6">
+            <div>
+              <h2 class="text-2xl font-semibold tracking-tight text-zinc-950">Custo Total Estimado</h2>
+              <p class="text-sm text-zinc-500 mt-1">Simulação completa incluindo taxas e reformas projetadas.</p>
+            </div>
+
+            <div class="space-y-4 pt-4">
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-zinc-500 flex items-center gap-2">
+                  <iconify-icon icon="solar:tag-price-linear" width="18"></iconify-icon>
+                  Valor do Leilão
+                </span>
+                <span id="precoLeilaoOut" class="font-semibold text-zinc-900">—</span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-zinc-500 flex items-center gap-2">
+                  <iconify-icon icon="solar:document-add-linear" width="18"></iconify-icon>
+                  ITBI (Est. 3%)
+                </span>
+                <span id="itbiOut" class="font-semibold text-zinc-900">—</span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-zinc-500 flex items-center gap-2">
+                  <iconify-icon icon="solar:buildings-2-linear" width="18"></iconify-icon>
+                  Cartório / Registro
+                </span>
+                <span id="cartorioOut" class="font-semibold text-zinc-900">—</span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-zinc-500 flex items-center gap-2">
+                  <iconify-icon icon="solar:shield-user-linear" width="18"></iconify-icon>
+                  Assessoria Jurídica
+                </span>
+                <span id="advogadoOut" class="font-semibold text-zinc-900">—</span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-zinc-500 flex items-center gap-2">
+                  <iconify-icon icon="solar:hammer-linear" width="18"></iconify-icon>
+                  Reforma Básica
+                </span>
+                <span id="reformaOut" class="font-semibold text-zinc-900">—</span>
+              </div>
+              <div class="h-px w-full bg-zinc-100 my-2"></div>
+              <div class="flex justify-between items-end">
+                <span class="text-zinc-900 font-medium">Custo Total Real</span>
+                <span id="totalOut" class="text-2xl font-semibold tracking-tight text-indigo-600">—</span>
+              </div>
+              <div class="text-xs text-zinc-400" id="observacaoOut"></div>
+            </div>
+
+            <button
+              id="calcularCustoBtn"
+              disabled
+              class="mt-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-200 disabled:text-indigo-600 text-white px-6 py-3 rounded-xl text-sm font-medium transition-colors shadow-sm w-full sm:w-auto"
+            >
+              Calcular custo real
+            </button>
+          </div>
+
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-semibold tracking-widest text-zinc-900 uppercase">Comparativo de mercado</h3>
+            </div>
+            <div class="space-y-3">
+              <div class="flex justify-between text-sm">
+                <span class="text-zinc-500">Valor de Mercado Avaliado</span>
+                <span id="mercadoOut" class="font-semibold text-zinc-900">—</span>
+              </div>
+              <div class="h-10 rounded-full bg-zinc-200/70 overflow-hidden">
+                <div id="mercadoBar" class="h-full bg-zinc-400/80 w-full"></div>
+              </div>
+
+              <div class="flex justify-between text-sm pt-4">
+                <span class="text-emerald-700 font-medium">Seu Custo Total</span>
+                <span id="custoOut" class="font-semibold text-emerald-700">—</span>
+              </div>
+              <div class="h-10 rounded-full bg-zinc-100 overflow-hidden">
+                <div id="custoBar" class="h-full bg-emerald-500 w-0"></div>
+              </div>
+              <div id="economiaPill" class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium hidden">
+                <iconify-icon icon="solar:graph-down-linear" width="18"></iconify-icon>
+                <span id="economiaText"></span>
+              </div>
+            </div>
+
+            <div id="dicaBox" class="bg-white rounded-2xl border border-zinc-200 p-5 shadow-sm hidden">
+              <div class="flex items-start gap-3">
+                <div class="h-10 w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0">
+                  <iconify-icon icon="solar:chat-square-like-linear" width="18"></iconify-icon>
+                </div>
+                <div>
+                  <div class="text-sm font-semibold text-zinc-900">Dica da IA</div>
+                  <div id="dicaText" class="text-sm text-zinc-600 mt-1 leading-relaxed"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="flipBox" class="bg-white rounded-2xl border border-zinc-200 p-5 shadow-sm hidden">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <div class="text-sm font-semibold text-zinc-900">Simulação de compra e venda</div>
+                  <div class="text-xs text-zinc-500 mt-1">Quando ainda vale o flip e quando começa o prejuízo</div>
+                </div>
+                <div class="text-xs text-zinc-500">Estimativa</div>
+              </div>
+
+              <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="block">
+                  <div class="text-xs font-medium text-zinc-600 mb-1">Preço de venda (estimado)</div>
+                  <input id="salePriceInput" type="number" class="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                </label>
+                <label class="block">
+                  <div class="text-xs font-medium text-zinc-600 mb-1">Meses até vender</div>
+                  <input id="monthsInput" type="number" min="0" max="60" value="8" class="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                </label>
+                <label class="block">
+                  <div class="text-xs font-medium text-zinc-600 mb-1">Condomínio (mensal)</div>
+                  <input id="condoInput" type="number" value="600" class="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                </label>
+                <label class="block">
+                  <div class="text-xs font-medium text-zinc-600 mb-1">IPTU (mensal)</div>
+                  <input id="iptuInput" type="number" value="150" class="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                </label>
+                <label class="block">
+                  <div class="text-xs font-medium text-zinc-600 mb-1">Corretagem / custos de venda (%)</div>
+                  <input id="sellingFeePctInput" type="number" value="5" step="0.1" class="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                </label>
+                <label class="block">
+                  <div class="text-xs font-medium text-zinc-600 mb-1">Outros custos mensais</div>
+                  <input id="otherMonthlyInput" type="number" value="0" class="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                </label>
+              </div>
+
+              <div class="mt-4 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="text-sm font-semibold text-zinc-900">Financiamento</div>
+                  <label class="inline-flex items-center gap-2 text-sm text-zinc-600 cursor-pointer">
+                    <input id="financingToggle" type="checkbox" class="h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500/30" />
+                    Usar financiamento
+                  </label>
+                </div>
+                <div id="financingFields" class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 hidden">
+                  <label class="block">
+                    <div class="text-xs font-medium text-zinc-600 mb-1">% financiado</div>
+                    <input id="financedPctInput" type="number" value="70" min="0" max="95" class="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                  </label>
+                  <label class="block">
+                    <div class="text-xs font-medium text-zinc-600 mb-1">Juros (ao mês)</div>
+                    <input id="rateMonthlyInput" type="number" value="1.2" step="0.05" class="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                  </label>
+                  <label class="block">
+                    <div class="text-xs font-medium text-zinc-600 mb-1">Prazo (meses)</div>
+                    <input id="termMonthsInput" type="number" value="360" min="12" max="480" class="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                  </label>
+                </div>
+                <div class="mt-3 text-xs text-zinc-500">
+                  <span class="font-medium text-zinc-700">Parcela estimada:</span>
+                  <span id="installmentOut">—</span>
+                  <span class="ml-3 font-medium text-zinc-700">Saldo devedor no mês:</span>
+                  <span id="balanceOut">—</span>
+                </div>
+              </div>
+
+              <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="rounded-2xl border border-zinc-200 p-4">
+                  <div class="text-xs font-medium text-zinc-500">Lucro / prejuízo</div>
+                  <div id="profitOut" class="mt-1 text-lg font-semibold text-zinc-900">—</div>
+                  <div id="profitHint" class="mt-1 text-xs text-zinc-500"></div>
+                </div>
+                <div class="rounded-2xl border border-zinc-200 p-4">
+                  <div class="text-xs font-medium text-zinc-500">Preço mínimo p/ empatar</div>
+                  <div id="breakevenPriceOut" class="mt-1 text-lg font-semibold text-zinc-900">—</div>
+                  <div class="mt-1 text-xs text-zinc-500">Para o prazo selecionado</div>
+                </div>
+                <div class="rounded-2xl border border-zinc-200 p-4">
+                  <div class="text-xs font-medium text-zinc-500">Até quando fica no lucro</div>
+                  <div id="maxProfitMonthsOut" class="mt-1 text-lg font-semibold text-zinc-900">—</div>
+                  <div class="mt-1 text-xs text-zinc-500">Assumindo o preço de venda</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="veredito" class="pt-4">
+        <div
+          class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 border border-zinc-800 shadow-sm"
+        >
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.25),transparent_60%)]"></div>
+          <div class="relative px-6 py-14 sm:px-10 sm:py-16 text-center">
+            <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight text-white">Veredito da Análise</h2>
+            <p class="text-zinc-300 mt-3">
+              Decisão baseada no cruzamento de dados financeiros, jurídicos e de mercado.
+            </p>
+
+            <div class="mt-10 flex flex-col items-center gap-4">
+              <div class="text-white text-6xl sm:text-7xl font-semibold tracking-tighter">
+                <span id="scoreBig">—</span>
+                <span class="text-zinc-400 text-2xl font-medium">/10</span>
+              </div>
+
+              <div class="flex items-center gap-6 text-sm">
+                <div id="economiaBadge" class="hidden flex items-center gap-2 text-emerald-300">
+                  <iconify-icon icon="solar:check-circle-linear" width="18"></iconify-icon>
+                  <span id="economiaBadgeText">Economia</span>
+                </div>
+                <div id="riscoBadge" class="hidden flex items-center gap-2 text-amber-300">
+                  <iconify-icon icon="solar:danger-circle-linear" width="18"></iconify-icon>
+                  <span id="riscoBadgeText">Risco</span>
+                </div>
+              </div>
+
+              <div
+                class="mt-6 w-full max-w-2xl rounded-2xl border border-white/10 bg-white/5 p-6 text-left"
+                id="recomendacaoCard"
+              >
+                <div class="text-sm font-semibold text-white/80 tracking-wide">RECOMENDAÇÃO ESTRATÉGICA</div>
+                <div id="recomendacaoText" class="mt-3 text-white text-lg leading-relaxed">
+                  Selecione um imóvel, analise o edital e calcule o custo para ver o veredito.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const state = {
+        selected: null,
+        analysis: null,
+        costs: null,
+        beginnerMode: false,
+      };
+
+      const el = (id) => document.getElementById(id);
+
+      const fmtBRL = (value) => {
+        const v = Number(value || 0);
+        return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      };
+
+      const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+      const calcMonthlyPayment = (principal, monthlyRate, termMonths) => {
+        const P = Number(principal || 0);
+        const r = Number(monthlyRate || 0);
+        const n = Math.max(1, Math.floor(Number(termMonths || 1)));
+        if (P <= 0) return 0;
+        if (r <= 0) return P / n;
+        return (P * r) / (1 - Math.pow(1 + r, -n));
+      };
+
+      const calcRemainingBalance = (principal, monthlyRate, termMonths, paidMonths, payment) => {
+        const P = Number(principal || 0);
+        const r = Number(monthlyRate || 0);
+        const n = Math.max(1, Math.floor(Number(termMonths || 1)));
+        const m = clamp(Math.floor(Number(paidMonths || 0)), 0, n);
+        if (P <= 0) return 0;
+        if (m <= 0) return P;
+        if (r <= 0) return Math.max(0, P - (Number(payment || 0) * m));
+        const pow = Math.pow(1 + r, m);
+        const bal = P * pow - (Number(payment || 0) * (pow - 1)) / r;
+        return Math.max(0, bal);
+      };
+
+      const setRiskBadge = (risco) => {
+        const badge = el("riskBadge");
+        const text = el("riskText");
+        if (!risco) {
+          badge.classList.add("hidden");
+          return;
+        }
+        badge.classList.remove("hidden");
+        const r = String(risco).toLowerCase();
+        text.textContent = `Risco ${r}`;
+        badge.className =
+          "flex items-center gap-2 px-3 py-1.5 rounded-full shadow-sm border " +
+          (r === "alto"
+            ? "bg-rose-50 border-rose-200 text-rose-700"
+            : r === "médio" || r === "medio"
+              ? "bg-amber-50 border-amber-200 text-amber-700"
+              : "bg-emerald-50 border-emerald-200 text-emerald-700");
+      };
+
+      const setStat = (containerId, ok, label) => {
+        const container = el(containerId);
+        const icon = ok ? "solar:check-circle-linear" : "solar:close-circle-linear";
+        const color = ok ? "text-emerald-600" : "text-rose-600";
+        container.innerHTML = `
+          <iconify-icon icon="${icon}" width="20" class="${color}"></iconify-icon>
+          <span>${label}</span>
+        `;
+      };
+
+      const calcScore = (risco, desconto, ocupado) => {
+        let score = 10;
+        if (String(risco || "").trim().toLowerCase() === "alto") score -= 3;
+        if (Number(desconto || 0) < 20) score -= 2;
+        if (ocupado) score -= 2;
+        return Math.max(0, Math.round(score * 10) / 10);
+      };
+
+      const recText = (score, risco) => {
+        const r = String(risco || "").trim().toLowerCase();
+        if (score >= 8.5 && r !== "alto") return "Vale a pena com risco controlado.";
+        if (score >= 7.0) return "Pode valer a pena, mas confira pontos críticos do edital.";
+        if (r === "alto") return "Cuidado: risco alto. Só avance se tiver estratégia jurídica e margem.";
+        return "Provavelmente não compensa pelo risco/margem.";
+      };
+
+      const gerarEditalFake = (p) => {
+        const titulo = String(p?.titulo || "Imóvel").trim();
+        const fonte = String(p?.fonte || "Leilão").trim();
+        const precoMercado = fmtBRL(p?.preco_mercado);
+        const precoLeilao = fmtBRL(p?.preco_leilao);
+        const desconto = Math.round(Number(p?.desconto || 0));
+        const altoRisco = desconto >= 40;
+        const ocupado = altoRisco || titulo.toLowerCase().includes("centro");
+        const temDividas = altoRisco;
+        const aceitaFinanciamento = !altoRisco;
+
+        const ocupacaoTxt = ocupado
+          ? "O IMÓVEL ENCONTRA-SE OCUPADO POR TERCEIROS, sendo a desocupação de responsabilidade do arrematante."
+          : "IMÓVEL DESOCUPADO, livre de pessoas e bens, no estado em que se encontra.";
+
+        const financiamentoTxt = aceitaFinanciamento
+          ? "ACEITA FINANCIAMENTO, desde que aprovado pela instituição financeira."
+          : "NÃO ACEITA FINANCIAMENTO. Pagamento deverá ser à vista conforme edital.";
+
+        const dividasTxt = temDividas
+          ? "Constam débitos de IPTU e condomínio, além de possíveis taxas e multas pendentes."
+          : "Não há menção expressa a débitos de IPTU ou condomínio no texto colado. Confirme na matrícula.";
+
+        const riscoBaseTxt = altoRisco ? "Há indícios de ônus e gravames que devem ser verificados." : "Edital sem sinais claros de ônus relevantes no trecho informado.";
+
+        return [
+          `EDITAL DE LEILÃO (FAKE) - ${fonte}`,
+          "",
+          `IMÓVEL: ${titulo}`,
+          `VALOR DE MERCADO (AVALIAÇÃO): ${precoMercado}`,
+          `LANCE MÍNIMO (LEILÃO): ${precoLeilao}`,
+          "",
+          "CONDIÇÕES DE PAGAMENTO:",
+          financiamentoTxt,
+          "",
+          "SITUAÇÃO DE POSSE / OCUPAÇÃO:",
+          ocupacaoTxt,
+          "",
+          "DÉBITOS E ENCARGOS:",
+          dividasTxt,
+          "",
+          "OBSERVAÇÕES:",
+          riscoBaseTxt,
+        ].join("\n");
+      };
+
+      const analisarEditalAtual = async () => {
+        if (!state.selected) return;
+        const texto = el("editalTextarea").value || "";
+        el("analyzeHint").textContent = "Analisando...";
+        try {
+          const res = await fetch("/api/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ texto }),
+          });
+          const data = await res.json();
+          state.analysis = data;
+          el("analyzeHint").textContent = "Análise pronta";
+          renderAnalysis();
+          renderCostAndVerdict();
+        } catch (e) {
+          el("analyzeHint").textContent = "Erro ao analisar. Tente novamente.";
+        }
+      };
+
+      const calcularCustoAtual = async () => {
+        if (!state.selected || !state.analysis) return;
+        try {
+          const res = await fetch("/api/cost", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              preco_leilao: state.selected.preco_leilao,
+              cidade: el("cidadeInput").value || "São Paulo",
+              ocupado: Boolean(state.analysis.ocupado),
+            }),
+          });
+          const data = await res.json();
+          state.costs = data;
+          renderCostAndVerdict();
+        } catch (e) {}
+      };
+
+      const setupFlipListenersOnce = (() => {
+        let done = false;
+        return () => {
+          if (done) return;
+          done = true;
+          const ids = [
+            "salePriceInput",
+            "monthsInput",
+            "condoInput",
+            "iptuInput",
+            "sellingFeePctInput",
+            "otherMonthlyInput",
+            "financingToggle",
+            "financedPctInput",
+            "rateMonthlyInput",
+            "termMonthsInput",
+          ];
+          ids.forEach((id) => {
+            const node = document.getElementById(id);
+            if (!node) return;
+            node.addEventListener("input", () => renderCostAndVerdict());
+            node.addEventListener("change", () => renderCostAndVerdict());
+          });
+          const toggle = document.getElementById("financingToggle");
+          if (toggle) {
+            toggle.addEventListener("change", () => {
+              const fields = document.getElementById("financingFields");
+              if (fields) fields.classList.toggle("hidden", !toggle.checked);
+              renderCostAndVerdict();
+            });
+          }
+        };
+      })();
+
+      const renderFlip = () => {
+        setupFlipListenersOnce();
+        const box = el("flipBox");
+        const p = state.selected;
+        const a = state.analysis;
+        const c = state.costs;
+        if (!p || !a || !c) {
+          box.classList.add("hidden");
+          return;
+        }
+        box.classList.remove("hidden");
+
+        const salePriceInput = el("salePriceInput");
+        const months = clamp(Number(el("monthsInput").value || 0), 0, 60);
+        const condo = Math.max(0, Number(el("condoInput").value || 0));
+        const iptu = Math.max(0, Number(el("iptuInput").value || 0));
+        const otherMonthly = Math.max(0, Number(el("otherMonthlyInput").value || 0));
+        const sellingFeePct = clamp(Number(el("sellingFeePctInput").value || 0), 0, 20);
+
+        if (!salePriceInput.value) {
+          salePriceInput.value = String(Math.round(Number(p.preco_mercado || 0)));
+        }
+        const salePrice = Math.max(0, Number(salePriceInput.value || 0));
+
+        const financingToggle = el("financingToggle");
+        const useFinancing = Boolean(financingToggle.checked);
+
+        const precoLeilao = Number(p.preco_leilao || 0);
+        const upfrontFees = Number(c.itbi || 0) + Number(c.cartorio || 0) + Number(c.advogado || 0) + Number(c.reforma || 0);
+
+        let downPayment = precoLeilao;
+        let installment = 0;
+        let balance = 0;
+        let monthlyFinancing = 0;
+
+        if (useFinancing) {
+          const pct = clamp(Number(el("financedPctInput").value || 0), 0, 95) / 100;
+          const principal = precoLeilao * pct;
+          downPayment = Math.max(0, precoLeilao - principal);
+          const monthlyRate = Math.max(0, Number(el("rateMonthlyInput").value || 0)) / 100;
+          const termMonths = clamp(Number(el("termMonthsInput").value || 360), 12, 480);
+          installment = calcMonthlyPayment(principal, monthlyRate, termMonths);
+          balance = calcRemainingBalance(principal, monthlyRate, termMonths, months, installment);
+          monthlyFinancing = installment;
+        }
+
+        const monthlyCarry = condo + iptu + otherMonthly + monthlyFinancing;
+        const netSale = salePrice * (1 - sellingFeePct / 100) - balance;
+        const profit = netSale - (downPayment + upfrontFees + monthlyCarry * months);
+
+        el("installmentOut").textContent = useFinancing ? fmtBRL(installment) : "—";
+        el("balanceOut").textContent = useFinancing ? fmtBRL(balance) : "—";
+
+        const breakevenPrice =
+          (downPayment + upfrontFees + monthlyCarry * months + balance) / Math.max(0.01, 1 - sellingFeePct / 100);
+
+        const maxMonths = 60;
+        let lastProfitMonth = -1;
+        for (let m = 0; m <= maxMonths; m++) {
+          let balM = 0;
+          let paymentM = 0;
+          if (useFinancing) {
+            const pct = clamp(Number(el("financedPctInput").value || 0), 0, 95) / 100;
+            const principal = precoLeilao * pct;
+            const monthlyRate = Math.max(0, Number(el("rateMonthlyInput").value || 0)) / 100;
+            const termMonths = clamp(Number(el("termMonthsInput").value || 360), 12, 480);
+            paymentM = calcMonthlyPayment(principal, monthlyRate, termMonths);
+            balM = calcRemainingBalance(principal, monthlyRate, termMonths, m, paymentM);
+          }
+          const netSaleM = salePrice * (1 - sellingFeePct / 100) - balM;
+          const profitM = netSaleM - (downPayment + upfrontFees + (condo + iptu + otherMonthly + paymentM) * m);
+          if (profitM >= 0) lastProfitMonth = m;
+        }
+
+        el("profitOut").textContent = fmtBRL(profit);
+        el("profitOut").className = `mt-1 text-lg font-semibold ${profit >= 0 ? "text-emerald-700" : "text-rose-700"}`;
+        el("profitHint").textContent =
+          profit >= 0
+            ? `No lucro em ${months} mês(es) com custos mensais de ${fmtBRL(monthlyCarry)}`
+            : `No prejuízo em ${months} mês(es). Custos mensais: ${fmtBRL(monthlyCarry)}`;
+
+        el("breakevenPriceOut").textContent = fmtBRL(breakevenPrice);
+        el("maxProfitMonthsOut").textContent = lastProfitMonth < 0 ? "0 mês" : `${lastProfitMonth} mês(es)`;
+      };
+
+      const renderCards = (items) => {
+        const grid = el("resultsGrid");
+        if (!items.length) {
+          grid.innerHTML = `<div class="col-span-full text-center text-sm text-zinc-500">Nenhum imóvel encontrado com esses filtros.</div>`;
+          return;
+        }
+        grid.innerHTML = items
+          .map((p, idx) => {
+            const scorePreview = Math.max(3, Math.min(9.5, 5.5 + (Number(p.desconto || 0) - 20) / 10));
+            const scoreColor =
+              scorePreview >= 8 ? "bg-emerald-50 border-emerald-100 text-emerald-700" : scorePreview >= 6 ? "bg-amber-50 border-amber-100 text-amber-700" : "bg-rose-50 border-rose-100 text-rose-700";
+            const kind = p.titulo.toLowerCase().includes("terreno") ? "Terreno" : p.titulo.toLowerCase().includes("casa") ? "Casa" : "Apartamento";
+            return `
+              <div class="group relative flex flex-col bg-white rounded-3xl border border-zinc-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-200 overflow-hidden">
+                <div class="p-6 space-y-6">
+                  <div class="flex justify-between items-start">
+                    <div class="space-y-1">
+                      <div class="flex items-center gap-2 text-xs font-medium text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full w-fit">
+                        <iconify-icon icon="${kind === "Terreno" ? "solar:buildings-linear" : "solar:home-2-linear"}" width="16"></iconify-icon>
+                        ${kind}
+                      </div>
+                      <h3 class="text-lg font-semibold tracking-tight text-zinc-900 mt-2">${p.titulo}</h3>
+                      <div class="text-xs text-zinc-500">${p.fonte}</div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center rounded-xl p-2 min-w-[3.5rem] border ${scoreColor}">
+                      <span class="text-xs font-medium uppercase tracking-wider mb-0.5">Score</span>
+                      <span class="text-xl font-semibold tracking-tighter">${scorePreview.toFixed(1)}</span>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2">
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-2xl font-semibold tracking-tight text-zinc-950">${fmtBRL(p.preco_leilao)}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-zinc-500">
+                      <iconify-icon icon="solar:graph-down-linear" class="text-emerald-500" width="18" stroke-width="1.5"></iconify-icon>
+                      <span><strong class="font-medium text-zinc-900">${Math.round(Number(p.desconto || 0))}%</strong> abaixo do mercado</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-auto p-4 border-t border-zinc-100 bg-zinc-50/50 group-hover:bg-indigo-50/30 transition-colors">
+                  <button data-idx="${idx}" class="selectBtn w-full flex items-center justify-center gap-2 text-sm font-medium text-indigo-600 py-2">
+                    Ver análise completa
+                    <iconify-icon icon="solar:arrow-right-linear" width="16" stroke-width="1.5"></iconify-icon>
+                  </button>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+        Array.from(document.querySelectorAll(".selectBtn")).forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const idx = Number(btn.getAttribute("data-idx"));
+            const items = window.__lastSearchResults || [];
+            state.selected = items[idx] || null;
+            state.analysis = null;
+            state.costs = null;
+            if (state.selected) {
+              el("editalTextarea").value = gerarEditalFake(state.selected);
+              el("analyzeHint").textContent = "Edital fake gerado. Analisando...";
+            } else {
+              el("analyzeHint").textContent = "Selecione um imóvel para analisar";
+            }
+            el("analisarBtn").disabled = false;
+            el("calcularCustoBtn").disabled = true;
+            renderSelectedProperty();
+            const saleInput = document.getElementById("salePriceInput");
+            if (saleInput) saleInput.value = "";
+            el("editalTextarea").focus();
+            document.getElementById("analise").scrollIntoView({ behavior: "smooth", block: "start" });
+            renderCostAndVerdict();
+            await analisarEditalAtual();
+            await calcularCustoAtual();
+            document.getElementById("veredito").scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        });
+      };
+
+      const renderSelectedProperty = () => {
+        const p = state.selected;
+        const bar = el("selectedPropertyBar");
+        if (!p) {
+          bar.classList.add("hidden");
+          return;
+        }
+        bar.classList.remove("hidden");
+        el("selectedTitle").textContent = p.titulo || "";
+        el("selectedFonte").textContent = p.fonte ? `Fonte: ${p.fonte}` : "";
+        el("selectedDesconto").textContent = `${Math.round(Number(p.desconto || 0))}% abaixo do mercado`;
+        el("selectedLeilao").textContent = fmtBRL(p.preco_leilao);
+        el("selectedMercado").textContent = fmtBRL(p.preco_mercado);
+        const link = String(p.link || "").trim();
+        const a = el("selectedLink");
+        if (link) {
+          a.href = link;
+          a.classList.remove("pointer-events-none", "opacity-50");
+        } else {
+          a.href = "#";
+          a.classList.add("pointer-events-none", "opacity-50");
+        }
+      };
+
+      const renderAnalysis = () => {
+        const a = state.analysis;
+        if (!a) {
+          setRiskBadge(null);
+          el("highlightBox").classList.add("hidden");
+          el("ocupacaoStat").innerHTML = `<iconify-icon icon="solar:minus-circle-linear" width="20"></iconify-icon><span>—</span>`;
+          el("financiamentoStat").innerHTML = `<iconify-icon icon="solar:minus-circle-linear" width="20"></iconify-icon><span>—</span>`;
+          el("dividasStat").innerHTML = `<iconify-icon icon="solar:minus-circle-linear" width="20"></iconify-icon><span>—</span>`;
+          const toggle = document.getElementById("financingToggle");
+          const fields = document.getElementById("financingFields");
+          if (toggle) toggle.checked = false;
+          if (fields) fields.classList.add("hidden");
+          return;
+        }
+        setRiskBadge(a.risco);
+        setStat("ocupacaoStat", !a.ocupado, a.ocupado ? "Ocupado" : "Desocupado");
+        setStat("financiamentoStat", a.financiamento, a.financiamento ? "Aceita" : "Não aceita");
+        const hasDebts = Array.isArray(a.dividas) && a.dividas.length > 0;
+        el("dividasStat").innerHTML = hasDebts
+          ? `<iconify-icon icon="solar:info-circle-linear" width="20" class="text-amber-600"></iconify-icon><span>${a.dividas.join(", ")}</span>`
+          : `<iconify-icon icon="solar:check-circle-linear" width="20" class="text-emerald-600"></iconify-icon><span>Sem sinal no texto</span>`;
+
+        el("highlightText").textContent = a.resumo || "";
+        el("highlightBox").classList.remove("hidden");
+        el("calcularCustoBtn").disabled = false;
+
+        const toggle = document.getElementById("financingToggle");
+        const fields = document.getElementById("financingFields");
+        if (toggle) toggle.checked = Boolean(a.financiamento);
+        if (fields) fields.classList.toggle("hidden", !(toggle && toggle.checked));
+      };
+
+      const renderCostAndVerdict = () => {
+        const p = state.selected;
+        const a = state.analysis;
+        const c = state.costs;
+
+        el("precoLeilaoOut").textContent = p ? fmtBRL(p.preco_leilao) : "—";
+        el("mercadoOut").textContent = p ? fmtBRL(p.preco_mercado) : "—";
+
+        if (!c) {
+          el("itbiOut").textContent = "—";
+          el("cartorioOut").textContent = "—";
+          el("advogadoOut").textContent = "—";
+          el("reformaOut").textContent = "—";
+          el("totalOut").textContent = "—";
+          el("observacaoOut").textContent = "";
+          el("custoOut").textContent = "—";
+          el("custoBar").style.width = "0%";
+          el("economiaPill").classList.add("hidden");
+          el("dicaBox").classList.add("hidden");
+        } else {
+          el("itbiOut").textContent = fmtBRL(c.itbi);
+          el("cartorioOut").textContent = fmtBRL(c.cartorio);
+          el("advogadoOut").textContent = fmtBRL(c.advogado);
+          el("reformaOut").textContent = fmtBRL(c.reforma);
+          el("totalOut").textContent = fmtBRL(c.total);
+          el("observacaoOut").textContent = c.observacao || "Esse valor é estimado.";
+          el("custoOut").textContent = fmtBRL(c.total);
+
+          const mercado = Number(p?.preco_mercado || 0);
+          const total = Number(c.total || 0);
+          const ratio = mercado > 0 ? clamp((total / mercado) * 100, 0, 100) : 0;
+          el("custoBar").style.width = `${ratio}%`;
+
+          const economia = Math.max(0, mercado - total);
+          if (mercado > 0) {
+            el("economiaText").textContent = `Economia real de ${fmtBRL(economia)}`;
+            el("economiaPill").classList.remove("hidden");
+          }
+
+          el("dicaText").textContent =
+            mercado > 0
+              ? `Mesmo com os custos de desocupação e reforma, sua margem de segurança estimada é de ${Math.round(((mercado - total) / mercado) * 100)}%. Confirme sempre no edital e matrícula.`
+              : "Confirme sempre no edital e matrícula.";
+          el("dicaBox").classList.remove("hidden");
+        }
+
+        const score = p && a ? calcScore(a.risco, p.desconto, a.ocupado) : null;
+        el("scoreBig").textContent = score === null ? "—" : String(score.toFixed(1));
+
+        if (p && a && c) {
+          const mercado = Number(p.preco_mercado || 0);
+          const total = Number(c.total || 0);
+          const economia = Math.max(0, mercado - total);
+          el("economiaBadgeText").textContent = economia > 0 ? "Economia Alta" : "Economia Baixa";
+          el("economiaBadge").classList.remove("hidden");
+
+          const r = String(a.risco || "").toLowerCase();
+          el("riscoBadgeText").textContent = r === "alto" ? "Risco Alto" : r === "médio" || r === "medio" ? "Risco Moderado" : "Risco Baixo";
+          el("riscoBadge").classList.remove("hidden");
+
+          el("recomendacaoText").textContent = recText(score, a.risco);
+        }
+
+        renderFlip();
+      };
+
+      el("modoInicianteBtn").addEventListener("click", () => {
+        state.beginnerMode = !state.beginnerMode;
+        el("modoInicianteBtn").classList.toggle("bg-indigo-50");
+      });
+
+      el("buscarBtn").addEventListener("click", async () => {
+        const cidade = el("cidadeInput").value || "São Paulo";
+        const desconto_min = Number(el("descontoSelect").value || 30);
+        el("searchStatus").textContent = "Buscando...";
+        try {
+          const res = await fetch("/api/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cidade, desconto_min }),
+          });
+          const data = await res.json();
+          window.__lastSearchResults = Array.isArray(data) ? data : [];
+          el("searchStatus").textContent = `${window.__lastSearchResults.length} imóvel(is) encontrado(s)`;
+          renderCards(window.__lastSearchResults);
+          state.selected = null;
+          state.analysis = null;
+          state.costs = null;
+          renderSelectedProperty();
+        } catch (e) {
+          el("searchStatus").textContent = "Erro ao buscar. Tente novamente.";
+        }
+      });
+
+      el("analisarBtn").addEventListener("click", async () => {
+        await analisarEditalAtual();
+      });
+
+      el("calcularCustoBtn").addEventListener("click", async () => {
+        await calcularCustoAtual();
+        document.getElementById("veredito").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      el("pdfInput").addEventListener("change", () => {
+        el("analyzeHint").textContent = "Upload recebido (parsing de PDF não implementado neste MVP). Cole o texto do edital.";
+      });
+
+      el("buscarBtn").click();
+    </script>
+  </body>
+</html>

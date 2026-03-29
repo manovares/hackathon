@@ -106,13 +106,13 @@ def analyze_edital_text(texto: str) -> EditalAnalysis:
     risco = _apply_business_rules(ocupado=ocupado, dividas=dividas, risco_base=risco_base)
 
     if ocupado and dividas:
-        resumo = "Imovel ocupado com debitos. Pode exigir acao judicial e negociacao de passivos."
+        resumo = "Imóvel ocupado com débitos. Pode exigir ação judicial e negociação de passivos."
     elif ocupado:
-        resumo = "Imovel ocupado. Pode exigir acao judicial para imissao na posse."
+        resumo = "Imóvel ocupado. Pode exigir ação judicial para imissão na posse."
     elif dividas:
-        resumo = "Imovel com debitos informados no edital. Verifique responsabilidade por quitacao e valores."
+        resumo = "Imóvel com débitos informados no edital. Verifique responsabilidade por quitação e valores."
     else:
-        resumo = "Edital sem sinais claros de ocupacao ou debitos no texto colado. Ainda assim, confirme matricula e condicoes."
+        resumo = "Edital sem sinais claros de ocupação ou débitos no texto colado. Ainda assim, confirme matrícula e condições."
 
     return EditalAnalysis(
         ocupado=ocupado,

@@ -42,5 +42,5 @@ def calcular_custos(input_data: CostInput) -> CostBreakdown:
         advogado=advogado,
         reforma=reforma,
         total=total,
-        observacao="Esse valor e estimado.",
+        observacao="Esse valor é estimado.",
     )
